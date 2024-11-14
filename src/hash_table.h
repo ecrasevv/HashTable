@@ -12,7 +12,8 @@ typedef struct {
 
 hash_table* new_ht(const int);
 void free_ht(hash_table*);
-static size_t hash_function(const char*);
-void insert_ht(hash_table*, const char*, const char*);
+unsigned long djb2_hash_function(const char*, int);
+void print_ht(hash_table*);
+void insert_ht(hash_table*, const char*, char*);
 char* search_ht(hash_table*, const char*);
 void delete_ht(hash_table*, const char*);
