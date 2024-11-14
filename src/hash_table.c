@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -37,12 +38,45 @@ void free_ht(hash_table* ht) {
     free(ht);
 }
 
-static size_t hash_function(const char* input) { 
-    assert(false && "TODO: function hash_function not implemented");
+void print_ht(hash_table* ht) {
+    printf("START\n");
+    for (int i = 0; i < ht->table_size; ++i) {
+        if (ht->items[i] == NULL) {
+            printf("\t %i \t ***\n", i);
+        } else {
+            printf("\t %i \t %s \t \n", i, ht->items[i]->value); 
+        }
+    }
+    printf("END\n");
 }
 
-void insert_ht(hash_table* ht, const char* k, const char* v) {
-    assert(false && "TODO: function insert_ht not implemented");
+unsigned long djb2_hash_function(const char* input, int table_size) { 
+    unsigned long hash = 5381;
+    int c;
+    
+    while ((c = *input++)) {
+        /* hash = hash * 33 + c ; 2^5 (left shift) */
+        hash = ((hash << 5) + hash) + c; 
+    }
+    return hash % table_size;
+}
+
+void insert_ht(hash_table* ht, const char* k, char* v) {
+    ht_item* item = new_item(k,v);
+    int index = djb2_hash_function(item->key, ht->table_size);
+    int i = 0;
+
+    /* primary agglomeration */
+    while (ht->items[index] != NULL && i < ht->table_size) {
+        index = (index + 1) % ht->table_size;
+        i++;
+    }
+
+    if (i == ht->table_size) {
+        printf("table overflow\n");
+        return;
+    }
+    ht->items[index] = item;
 }
 
 char* search_ht(hash_table* ht, const char* k) {
