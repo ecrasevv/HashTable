@@ -1,6 +1,6 @@
 #include "hash_table.h"
 #include <stdio.h>
 
-int main(int argc, const char** argv ) {
+int main(void) {
     return 0;
 }
