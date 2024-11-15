@@ -4,18 +4,19 @@
 #include <stddef.h>
 
 typedef struct {
-    char*   value;
-    char*   key; 
+    char* value;
+    char* key; 
 } ht_item;
 
 typedef struct {
-    int         table_size;
-    ht_item**   items;
+    size_t    table_size;
+    ht_item** items;
 } hash_table;
 
-hash_table* new_ht(const int);
+hash_table* new_ht(size_t);
 void free_ht(hash_table*);
-unsigned long djb2_hash_function(const char*, int);
+unsigned long djb2_hash_function(const char*, size_t);
+unsigned long sdbm_hash_function(const char*, size_t);
 void print_ht(hash_table*);
 void insert_ht(hash_table*, const char*, char*);
 char* search_ht(hash_table*, const char*);
