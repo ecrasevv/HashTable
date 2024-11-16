@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,7 +7,7 @@
 
 #include "hash_table.h"
 
-static ht_item HT_DELETED = {NULL,NULL};
+static ht_item HT_DELETED_ELEMENT = {NULL,NULL};
 
 static ht_item* new_item(const char* k, const char* v)
 {
@@ -57,9 +58,9 @@ void print_ht(hash_table* ht)
     printf("END\n");
 }
 
-unsigned long djb2_hash_function(const char* input, size_t table_size) 
+uint32_t djb2_hash_function(const char* input, size_t table_size) 
 { 
-    unsigned long hash = 5381;
+    uint32_t hash = 5381;
     int c;
     
     while ((c = *input++)) {
@@ -69,9 +70,9 @@ unsigned long djb2_hash_function(const char* input, size_t table_size)
     return hash % table_size;
 }
 
-unsigned long sdbm_hash_function(const char* input, size_t table_size) 
+uint32_t sdbm_hash_function(const char* input, size_t table_size) 
 { 
-    unsigned long hash = 0;
+    uint32_t hash = 0;
     int c;
 
     while((c = *input++)) {
@@ -83,14 +84,14 @@ unsigned long sdbm_hash_function(const char* input, size_t table_size)
 void insert_ht(hash_table* ht, const char* k, char* v) 
 {
     ht_item* item = new_item(k,v);
-    int index = djb2_hash_function(item->key, ht->table_size);
+    uint32_t index = djb2_hash_function(item->key, ht->table_size);
     int i = 0;
 
-    while (ht->items[index] != NULL && i < ht->table_size) {
+    while (ht->items[index] != NULL && ht->items[index] != &HT_DELETED_ELEMENT && i < ht->table_size) {
         index = (index + sdbm_hash_function(item->key, ht->table_size)) % ht->table_size; /* double hashing */
         i++;
     }
-
+    
     if (i == ht->table_size) {
         printf("table overflow\n");
         free_item(item);
@@ -101,21 +102,32 @@ void insert_ht(hash_table* ht, const char* k, char* v)
 
 char* search_ht(hash_table* ht, const char* k)
 {
-    int index = djb2_hash_function(k, ht->table_size);
+    uint32_t index = djb2_hash_function(k, ht->table_size);
+    int i = 0;
+
+    while (ht->items[index] != NULL && i < ht->table_size) {
+            if (ht->items[index] != &HT_DELETED_ELEMENT && strcmp(ht->items[index]->key, k) == 0) {
+                return ht->items[index]->value;
+            } else {
+                index = (index + sdbm_hash_function(k, ht->table_size)) % ht->table_size;
+                i++;
+            }
+        }
+    return NULL;
+}
+
+int delete_ht(hash_table* ht, const char* k)
+{
+    uint32_t index = djb2_hash_function(k, ht->table_size);
     int i = 0;
 
     while (ht->items[index] != NULL && i < ht->table_size) {
         if (strcmp(ht->items[index]->key, k) == 0) {
-            return ht->items[index]->value;
-        } else {
-            index = (index + sdbm_hash_function(k, ht->table_size)) % ht->table_size;
-            i++;
+            ht->items[index] = &HT_DELETED_ELEMENT;
+            return 0;
         }
+        index = (index + sdbm_hash_function(k, ht->table_size)) % ht->table_size;
+        i++;
     }
-    return NULL;
-}
-
-void delete_ht(hash_table* ht, const char* k)
-{
-    assert(false && "TODO: function delete_ht not implemented");
+    return -1;
 }
