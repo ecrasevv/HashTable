@@ -1,6 +1,7 @@
 #ifndef HASH_TABLE_H_
 #define HASH_TABLE_H_
 
+#include <stdint.h>
 #include <stddef.h>
 
 typedef struct {
@@ -15,12 +16,12 @@ typedef struct {
 
 hash_table* new_ht(size_t);
 void free_ht(hash_table*);
-unsigned long djb2_hash_function(const char*, size_t);
-unsigned long sdbm_hash_function(const char*, size_t);
+uint32_t djb2_hash_function(const char*, size_t);
+uint32_t sdbm_hash_function(const char*, size_t);
 void print_ht(hash_table*);
 void insert_ht(hash_table*, const char*, char*);
 char* search_ht(hash_table*, const char*);
-void delete_ht(hash_table*, const char*);
+int delete_ht(hash_table*, const char*);
 
 #endif //HASH_TABLE_H_
 
