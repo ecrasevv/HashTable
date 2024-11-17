@@ -7,6 +7,12 @@
 
 #include "hash_table.h"
 
+#define DJB2_INITIAL_VALUE 5381
+#define SDBM_INITIAL_VALUE 0
+
+#define new_index(index, k, table_size)                               \
+    ((index) + sdbm_hash_function((k), (table_size))) % (table_size); \
+
 static ht_item HT_DELETED_ELEMENT = {NULL,NULL};
 
 static ht_item* new_item(const char* k, const char* v)
@@ -60,7 +66,7 @@ void print_ht(hash_table* ht)
 
 uint32_t djb2_hash_function(const char* input, size_t table_size) 
 { 
-    uint32_t hash = 5381;
+    uint32_t hash = DJB2_INITIAL_VALUE;
     int c;
     
     while ((c = *input++)) {
@@ -72,7 +78,7 @@ uint32_t djb2_hash_function(const char* input, size_t table_size)
 
 uint32_t sdbm_hash_function(const char* input, size_t table_size) 
 { 
-    uint32_t hash = 0;
+    uint32_t hash = SDBM_INITIAL_VALUE;
     int c;
 
     while((c = *input++)) {
@@ -88,7 +94,7 @@ void insert_ht(hash_table* ht, const char* k, char* v)
     int i = 0;
 
     while (ht->items[index] != NULL && ht->items[index] != &HT_DELETED_ELEMENT && i < ht->table_size) {
-        index = (index + sdbm_hash_function(item->key, ht->table_size)) % ht->table_size; /* double hashing */
+        index = new_index(index, k, ht->table_size);
         i++;
     }
     
@@ -109,7 +115,7 @@ char* search_ht(hash_table* ht, const char* k)
             if (ht->items[index] != &HT_DELETED_ELEMENT && strcmp(ht->items[index]->key, k) == 0) {
                 return ht->items[index]->value;
             } else {
-                index = (index + sdbm_hash_function(k, ht->table_size)) % ht->table_size;
+                index = new_index(index, k, ht->table_size);
                 i++;
             }
         }
@@ -126,7 +132,7 @@ int delete_ht(hash_table* ht, const char* k)
             ht->items[index] = &HT_DELETED_ELEMENT;
             return 0;
         }
-        index = (index + sdbm_hash_function(k, ht->table_size)) % ht->table_size;
+        index = new_index(index, k, ht->table_size);
         i++;
     }
     return -1;
