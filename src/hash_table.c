@@ -9,6 +9,8 @@
 
 #define DJB2_INITIAL_VALUE 5381
 #define SDBM_INITIAL_VALUE 0
+#define MAX_KEY_SIZE       100
+#define MAX_VALUE_SIZE     500
 
 #define new_index(index, k, table_size)                               \
     ((index) + sdbm_hash_function((k), (table_size))) % (table_size); \
@@ -136,4 +138,45 @@ int delete_ht(hash_table* ht, const char* k)
         i++;
     }
     return -1;
+}
+
+void insert_from_file(hash_table* ht, ht_item* item)
+{
+    uint32_t index = djb2_hash_function(item->key, ht->table_size);
+    int i = 0;
+
+    while (ht->items[index] != NULL && ht->items[index] != &HT_DELETED_ELEMENT && i < ht->table_size) {
+        index = new_index(index, item->key, ht->table_size);
+        i++;
+    }
+
+    if (i == ht->table_size) {
+        printf("table overflow\n");
+        free_item(item);
+        return;
+    }
+    ht->items[index] = item;
+}
+
+void file_to_hash(hash_table* ht, const char* path_name) 
+{
+    FILE* file_ptr;
+    char c;
+    char* key = malloc(MAX_KEY_SIZE);
+    char* value = malloc(MAX_VALUE_SIZE);
+
+    if ((file_ptr = fopen(path_name, "r")) == NULL) {
+        perror("fopen fail");
+        exit(1);
+    }
+
+    ht_item* item = NULL;
+    while ((fscanf(file_ptr, "%s %s", key, value)) == 2) {
+        item = new_item(key, value);
+        insert_from_file(ht, item);
+    }
+
+    free(key);
+    free(value);
+    fclose(file_ptr);
 }

@@ -6,9 +6,9 @@ OBJECTS = $(SOURCES:.c=.o)
 TARGET = hash_program
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) -o $(TARGET)
 
 .PHONY: clean
 
 clean:
-	@rm -f $(TARGET) $(OBJECTS) core
+	@rm -f $(OBJETS) $(TARGET) core
