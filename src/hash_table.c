@@ -161,7 +161,6 @@ void insert_from_file(hash_table* ht, ht_item* item)
 void file_to_hash(hash_table* ht, const char* path_name) 
 {
     FILE* file_ptr;
-    char c;
     char* key = malloc(MAX_KEY_SIZE);
     char* value = malloc(MAX_VALUE_SIZE);
 
