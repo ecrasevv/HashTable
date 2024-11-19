@@ -15,7 +15,11 @@
 #define new_index(index, k, table_size)                               \
     ((index) + sdbm_hash_function((k), (table_size))) % (table_size); \
 
-static ht_item HT_DELETED_ELEMENT = {NULL,NULL};
+static ht_item HT_DELETED_ELEMENT = 
+    {
+        NULL,
+        NULL
+    };
 
 static ht_item* new_item(const char* k, const char* v)
 {
