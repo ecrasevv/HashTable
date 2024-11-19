@@ -23,5 +23,8 @@ void insert_ht(hash_table*, const char*, char*);
 char* search_ht(hash_table*, const char*);
 int delete_ht(hash_table*, const char*);
 
+void file_to_hash(hash_table*, const char*);
+void insert_from_file(hash_table*, ht_item*);
+
 #endif //HASH_TABLE_H_
 
